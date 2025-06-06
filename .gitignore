@@ -1,0 +1,5 @@
+target
+kernel.elf
+compile_commands.json
+.cache
+hdd.dsk
