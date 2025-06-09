@@ -1,11 +1,14 @@
-CC = riscv32-unknown-linux-gnu-gcc
-LD = riscv32-unknown-linux-gnu-ld
-AS = riscv32-unknown-linux-gnu-as
+CC = riscv64-unknown-elf-gcc
+LD = riscv64-unknown-elf-ld
+AS = riscv64-unknown-elf-as
 
-ARCH=rv32imacf_zicsr
-ABI=ilp32f
+ARCH=rv64imacfd_zicsr
+ABI=lp64d
 
-CFLAGS  = -Wall -Wextra -O0 -ffreestanding -march=$(ARCH) -mabi=$(ABI) -I./include -g
+CFLAGS  = -Wall -Wextra -ffreestanding -march=$(ARCH) -mabi=$(ABI) -I./include -I./libc/printf
+CFLAGS += -g3 -O0
+CFLAGS += -mcmodel=medany
+#CFLAGS += -DPRINTF_DISABLE_SUPPORT_FLOAT -DPRINTF_DISABLE_SUPPORT_LONG_LONG
 ASFLAGS = -march=$(ARCH) -mabi=$(ABI) -g
 
 C_SRCS := $(shell find . -name '*.c')
@@ -16,7 +19,7 @@ OBJS := $(patsubst ./%,target/%,$(OBJS))
 default: kernel.elf
 
 kernel.elf: $(OBJS)
-	$(LD) -m elf32lriscv -T linker.ld -o $@ $^ -g
+	$(LD) -m elf64lriscv -T virt.lds -o $@ $^ -g
 
 target/%.o: %.c
 	@mkdir -p $(dir $@)
@@ -33,7 +36,7 @@ target:
 
 run:
 	@echo "Ctrl-A C for QEMU console, then quit to exit"
-	qemu-system-riscv32 -nographic -serial mon:stdio -machine virt -bios kernel.elf
+	qemu-system-riscv64 -nographic -serial mon:stdio -machine virt -bios kernel.elf
 
 clean:
 	rm -rf target kernel.elf
