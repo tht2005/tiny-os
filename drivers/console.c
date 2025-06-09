@@ -15,3 +15,8 @@ void console_puts (const char *str)
 {
     uart_puts (str);
 }
+
+void _putchar (char c)
+{
+    console_putc (c);
+}
