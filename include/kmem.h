@@ -17,4 +17,10 @@ Table *get_page_table ();
 uintptr_t get_num_allocations ();
 void kmem_init ();
 
+uint8_t *kmalloc (uintptr_t sz);
+uint8_t *kzalloc (uintptr_t sz);
+void kfree (uint8_t *ptr);
+
+void kmem_print_table ();
+
 #endif

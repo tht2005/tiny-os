@@ -146,7 +146,7 @@ void kfree (uint8_t *ptr)
     }
 }
 
-void print_table ()
+void kmem_print_table ()
 {
     AllocList *head = KMEM_HEAD;
     AllocList *tail = (AllocList *)( ((uint8_t *) KMEM_HEAD) + (KMEM_ALLOC * PAGE_SIZE) );
