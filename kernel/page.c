@@ -173,7 +173,7 @@ void entry_set_entry (Entry *self, uint32_t entry)
 {
     self->entry = entry;
 }
-uint32_t entry_get_entry (Entry *self)
+uintptr_t entry_get_entry (Entry *self)
 {
     return self->entry;
 }
@@ -231,6 +231,7 @@ uintptr_t virt_to_phys (Table *root, uintptr_t vaddr)
     Entry *v = &root->entries[vpn[2]];
     for (int i = 2; i >= 0; --i)
     {
+        printf ("virt_to_phys debug: 0x%p\n", entry_get_entry (v));
         if (entry_is_invalid (v))
         {
             // invalid entry, page fault
@@ -238,13 +239,13 @@ uintptr_t virt_to_phys (Table *root, uintptr_t vaddr)
         }
         else if (entry_is_leaf (v))
         {
-            uintptr_t off_mask = (1 << (12 + i * 9)) - 1;
+            uintptr_t off_mask = (1ULL << (12 + i * 9)) - 1;
             uintptr_t vaddr_pgoff = vaddr & off_mask;
             uintptr_t addr = ((uintptr_t)(entry_get_entry (v) << 2)) & ~off_mask;
             return vaddr_pgoff | addr;
         }
         Entry *entry = (Entry *) ((entry_get_entry (v) & ~0x3ff) << 2);
-        assert (i >= 0);
+        assert (i > 0);
         v = &entry[vpn[i - 1]];
     }
     return INVALID_PHYS_ADDR;

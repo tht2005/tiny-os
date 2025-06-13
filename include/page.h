@@ -51,7 +51,7 @@ typedef enum {
 } EntryBits;
 
 typedef struct Entry {
-    uint32_t entry;
+    uintptr_t entry;
 } Entry;
 
 #define TABLE_LEN 512
