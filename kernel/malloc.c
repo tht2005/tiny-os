@@ -2,15 +2,15 @@
 #include "kmem.h"
 #include <stddef.h>
 
-void *malloc(size_t size)
+void *__malloc(size_t size)
 {
     return (void*) kmalloc (size);
 }
-void *calloc(size_t num, size_t size)
+void *__calloc(size_t num, size_t size)
 {
     return (void*) kzalloc (num * size);
 }
-void free(void *ptr)
+void __free(void *ptr)
 {
-    dealloc (ptr);
+    kfree (ptr);
 }
