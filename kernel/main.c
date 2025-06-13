@@ -1,13 +1,29 @@
 #include "console.h"
+#include "uart.h"
 #include "kmem.h"
 #include "page.h"
 #include "printf.h"
 #include "linker_symbol.h"
-#include "uart.h"
+#include "malloc.h"
 #include <assert.h>
 #include <stdint.h>
 
 static uintptr_t KERNEL_TABLE;
+
+__attribute__((aligned(32)))
+void kmain()
+{
+    console_init ();
+    printf ("#          KMAIN          #\n");
+    {
+        uint32_t *k = (uint32_t *) malloc (sizeof (uint32_t));
+        *k = 10;
+        printf ("Value = %u\n", *k);
+        kmem_print_table ();
+        free (k);
+    }
+    return ;
+}
 
 void id_map_range (Table *root, uintptr_t start, uintptr_t end, uint64_t bits)
 {
@@ -28,7 +44,7 @@ uintptr_t kinit ()
     Table *root = get_page_table();
     uint8_t *kheap_head = get_head();
     uintptr_t total_pages = get_num_allocations();
-    printf ("\n");
+    printf ("#          KINIT          #\n");
     printf ("\n");
     printf ("TEXT:   0x%p -> 0x%p\n", TEXT_START, TEXT_END);
     printf ("RODATA: 0x%p -> 0x%p\n", RODATA_START, RODATA_END);
@@ -42,7 +58,6 @@ uintptr_t kinit ()
         (uintptr_t) kheap_head + total_pages * PAGE_SIZE,
         ENTRY_READ_WRITE
     );
-
     uintptr_t num_pages = HEAP_SIZE / PAGE_SIZE;
     id_map_range (
         root,
@@ -82,6 +97,7 @@ uintptr_t kinit ()
     );
 
     map (root, UART0_BASE, UART0_BASE, ENTRY_READ_WRITE, 0);
+
     map (root, 0x02000000, 0x02000000, ENTRY_READ_WRITE, 0);
     map (root, 0x0200b000, 0x0200b000, ENTRY_READ_WRITE, 0);
     map (root, 0x0200c000, 0x0200c000, ENTRY_READ_WRITE, 0);
@@ -89,10 +105,6 @@ uintptr_t kinit ()
     map (root, 0x0c200000, 0x0c208000, ENTRY_READ_WRITE, 0);
 
     print_page_allocations();
-
-    uintptr_t p = 0x80057000;
-    uintptr_t m = virt_to_phys (root, p);
-    printf ("Walk 0x%p = 0x%p\n", p, m);
 
     KERNEL_TABLE = (uintptr_t)root;
 

@@ -2,7 +2,7 @@
 
 void uart_init ()
 {
-    UART0_FCR = UARTFCR_FFENA;
+    // UART0_FCR = UARTFCR_FFENA;
 }
 
 void uart_putc (char c)
