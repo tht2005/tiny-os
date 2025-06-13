@@ -16,7 +16,7 @@ typedef enum {
 
 } PageBits;
 
-typedef struct Page {
+typedef struct {
     int8_t flags;
 } Page;
 
@@ -50,12 +50,12 @@ typedef enum {
 
 } EntryBits;
 
-typedef struct Entry {
+typedef struct {
     uintptr_t entry;
 } Entry;
 
 #define TABLE_LEN 512
-typedef struct Table {
+typedef struct {
     Entry entries[TABLE_LEN];
 } Table;
 

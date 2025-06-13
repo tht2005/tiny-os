@@ -5,10 +5,10 @@
 #include <stdint.h>
 
 typedef enum {
-    ALLOC_LIST_TAKEN,
+    ALLOC_LIST_TAKEN = 1 << 0,
 } AllocListFlags;
 
-typedef struct AllocList {
+typedef struct {
     uintptr_t flags_size;
 } AllocList;
 
