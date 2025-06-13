@@ -1,12 +1,13 @@
 #ifndef __UART_H
 #define __UART_H
 
+#include "mmio.h"
+
 #define UART0_BASE 0x10000000
 
-#define REG(base, offset)           ((*((volatile unsigned char *)(base + offset))))
-#define UART0_DR                    REG(UART0_BASE, 0x00)
-#define UART0_FCR                   REG(UART0_BASE, 0x02)
-#define UART0_LSR                   REG(UART0_BASE, 0x05)
+#define UART0_DR                    REG8(UART0_BASE, 0x00)
+#define UART0_FCR                   REG8(UART0_BASE, 0x02)
+#define UART0_LSR                   REG8(UART0_BASE, 0x05)
 
 #define UARTFCR_FFENA               0x01
 #define UARTLSR_THRE                0x20
