@@ -10,7 +10,6 @@
 
 static uintptr_t KERNEL_TABLE;
 
-__attribute__((aligned(32)))
 void kmain()
 {
     console_init ();
