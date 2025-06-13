@@ -7,8 +7,25 @@
 #include "malloc.h"
 #include <assert.h>
 #include <stdint.h>
+#include "lib.h"
 
 static uintptr_t KERNEL_TABLE;
+void panic (const char *fmt, ...)
+{
+    va_list args;
+    va_start (args, fmt);
+
+    printf ("Kernel panic: ");
+    vprintf (fmt, args);
+    printf ("\n");
+
+    va_end (args);
+
+    while (1)
+    {
+        __asm__ volatile ("wfi");
+    }
+}
 
 void kmain()
 {
