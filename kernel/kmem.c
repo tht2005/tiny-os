@@ -3,6 +3,7 @@
 #include "printf.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <inttypes.h>
 
 static AllocList *KMEM_HEAD = NULL;
 static uintptr_t KMEM_ALLOC = 0;
@@ -152,7 +153,7 @@ void kmem_print_table ()
     AllocList *tail = (AllocList *)( ((uint8_t *) KMEM_HEAD) + (KMEM_ALLOC * PAGE_SIZE) );
     while (head < tail)
     {
-        printf ("0x%p: Length = %10d, Taken = %d\n", head, alloc_list_get_size (head), alloc_list_is_taken (head));
+        printf ("0x%"PRIxPTR": Length = %10"PRIuPTR", Taken = %d\n", head, alloc_list_get_size (head), alloc_list_is_taken (head));
         head = (AllocList *) ( (uint8_t *)head + alloc_list_get_size (head) );
     }
 }

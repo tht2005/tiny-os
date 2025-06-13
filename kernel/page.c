@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <inttypes.h>
 
 static uintptr_t ALLOC_START = 0;
 
@@ -122,8 +123,8 @@ void print_page_allocations ()
 
     printf ("\n");
     printf ("PAGE ALLOCATION TABLE\n");
-    printf ("META: 0x%p -> 0x%p\n", beg, end);
-    printf ("PHYS: 0x%p -> 0x%p\n", alloc_beg, alloc_end);
+    printf ("META: 0x%"PRIxPTR" -> 0x%"PRIxPTR"\n", beg, end);
+    printf ("PHYS: 0x%"PRIxPTR" -> 0x%"PRIxPTR"\n", alloc_beg, alloc_end);
     printf ("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     size_t num = 0;
     while (beg < end)
@@ -131,7 +132,7 @@ void print_page_allocations ()
         if (page_is_taken (beg)) {
             uintptr_t start = (uintptr_t)beg;
             size_t memaddr = ALLOC_START + (start - HEAP_START) * PAGE_SIZE;
-            printf ("0x%p => ", memaddr);
+            printf ("0x%"PRIxPTR" => ", memaddr);
             while (1)
             {
                 ++num;
@@ -139,7 +140,7 @@ void print_page_allocations ()
                 {
                     uintptr_t end = (uintptr_t)beg;
                     size_t memaddr = ALLOC_START + (end - HEAP_START) * PAGE_SIZE + PAGE_SIZE - 1;
-                    printf ("0x%p: %3d page(s).\n", memaddr, (end - start + 1));
+                    printf ("0x%"PRIxPTR": %3"PRIuPTR" page(s).\n", memaddr, (end - start + 1));
                     break;
                 }
                 ++beg;
@@ -148,8 +149,8 @@ void print_page_allocations ()
         ++beg;
     }
     printf ("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf ("Allocated: %6d pages (%10d bytes).\n", num, num * PAGE_SIZE);
-    printf ("Free     : %6d pages (%10d bytes).\n", num_pages - num, (num_pages - num) * PAGE_SIZE);
+    printf ("Allocated: %6"PRIuPTR" pages (%10"PRIuPTR" bytes).\n", num, num * PAGE_SIZE);
+    printf ("Free     : %6"PRIuPTR" pages (%10"PRIuPTR" bytes).\n", num_pages - num, (num_pages - num) * PAGE_SIZE);
     printf ("\n");
 }
 
@@ -231,7 +232,7 @@ uintptr_t virt_to_phys (Table *root, uintptr_t vaddr)
     Entry *v = &root->entries[vpn[2]];
     for (int i = 2; i >= 0; --i)
     {
-        printf ("virt_to_phys debug: 0x%p\n", entry_get_entry (v));
+        // printf ("virt_to_phys debug: 0x%"PRIxPTR"\n", entry_get_entry (v));
         if (entry_is_invalid (v))
         {
             // invalid entry, page fault
