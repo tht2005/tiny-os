@@ -62,6 +62,7 @@ typedef struct {
 #define INVALID_PHYS_ADDR       (~(uintptr_t)0)
 
 void map (Table *root, uintptr_t vaddr, uintptr_t paddr, uint64_t bits, int level);
+void unmap (Table *root);
 uintptr_t virt_to_phys (Table *root, uintptr_t vaddr);
 
 #endif
