@@ -16,7 +16,7 @@ void console_puts (const char *str)
     uart_puts (str);
 }
 
-char console_getc ()
+int console_getc ()
 {
     return uart_getc ();
 }

@@ -38,8 +38,10 @@ _start:
 	csrw	mtvec, t2
 	la		t1, kmain
 	csrw	mepc, t1
-	li		t2, (1 << 11) | (1 << 7) | (1 << 3)
+	# li		t2, (1 << 11) | (1 << 7) | (1 << 3)
+	li		t2, 0xaaa
 	csrw	mie, t2
+	la		ra, 4f
 	mret
 3:
 	la		sp, _stack_end

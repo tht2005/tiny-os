@@ -6,6 +6,7 @@
 #include "clint.h"
 #include "console.h"
 #include "cpu.h"
+#include "plic.h"
 #include "uart.h"
 #include "kmem.h"
 #include "page.h"
@@ -33,7 +34,6 @@ void panic (const char *fmt, ...)
 
 void kmain()
 {
-    console_init ();
     {
         uint32_t *k = (uint32_t *) malloc (sizeof (uint32_t));
         *k = 10;
@@ -57,12 +57,22 @@ void kmain()
     printf ("Every thing is freed now\n");
     kmem_print_table ();
 
-    printf ("debug: %lu %lu\n", MTIMECMP (0), MTIME);
-    CLINT_SET_TIMEOUT (0, CLINT_CLOCK_FREQ);
-
-    while (1)
     {
+        CLINT_SET_TIMEOUT (0, CLINT_CLOCK_FREQ);
+        // uint64_t *v = (uint64_t *)0x0;
+        // *v = 0;
     }
+
+    printf ("Setting up interrupts and PLIC...\n");
+    plic_set_threshold (0);
+    plic_enable (10);
+    plic_set_priority (10, 1);
+    printf ("Uart interrupts have been enabled and are awaiting for you command\n");
+    // while (1)
+    // {
+    //     char c = console_getc();
+    //     printf ("type: %c (%d)\n", c, (int)c);
+    // }
 }
 
 void id_map_range (Table *root, uintptr_t start, uintptr_t end, uint64_t bits)
@@ -139,8 +149,8 @@ void kinit ()
     id_map_range (root, UART0_BASE, UART0_BASE + 0x100, ENTRY_READ_WRITE);
     id_map_range (root, CLINT_BASE, CLINT_BASE + 0xffff, ENTRY_READ_WRITE);
     // PLIC
-    id_map_range (root, 0x0c000000, 0x0c002000, ENTRY_READ_WRITE);
-    id_map_range (root, 0x0c200000, 0x0c208000, ENTRY_READ_WRITE);
+    id_map_range (root, 0x0c000000, 0x0c002001, ENTRY_READ_WRITE);
+    id_map_range (root, 0x0c200000, 0x0c208001, ENTRY_READ_WRITE);
 
     uintptr_t satp_value = build_satp (SV39, 0, (uintptr_t) root);
     mscratch_write ((uintptr_t) &KERNEL_TRAP_FRAME[0]);
