@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 
+#include "clint.h"
 #include "cpu.h"
 #include "lib.h"
 #include "printf.h"
@@ -24,7 +25,8 @@ uintptr_t m_trap (uintptr_t epc,
                 printf ("Machine software interrupt CPU#%"PRIuPTR"\n", hart);
                 break;
             case 7:
-                // later
+                // timer int -> extend 1 sec
+                CLINT_SET_TIMEOUT (hart, CLINT_CLOCK_FREQ);
                 break;
             case 11:
                 printf ("Machine external interrupt CPU#%"PRIuPTR"\n", hart);

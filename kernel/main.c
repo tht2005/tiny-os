@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 
+#include "clint.h"
 #include "console.h"
 #include "cpu.h"
 #include "uart.h"
@@ -55,6 +56,9 @@ void kmain()
 
     printf ("Every thing is freed now\n");
     kmem_print_table ();
+
+    printf ("debug: %lu %lu\n", MTIMECMP (0), MTIME);
+    CLINT_SET_TIMEOUT (0, CLINT_CLOCK_FREQ);
 
     while (1)
     {
@@ -132,12 +136,11 @@ void kinit ()
         ENTRY_READ_WRITE
     );
 
-    map (root, UART0_BASE, UART0_BASE, ENTRY_READ_WRITE, 0);
-    map (root, 0x02000000, 0x02000000, ENTRY_READ_WRITE, 0);
-    map (root, 0x0200b000, 0x0200b000, ENTRY_READ_WRITE, 0);
-    map (root, 0x0200c000, 0x0200c000, ENTRY_READ_WRITE, 0);
-    map (root, 0x0c000000, 0x0c002000, ENTRY_READ_WRITE, 0);
-    map (root, 0x0c200000, 0x0c208000, ENTRY_READ_WRITE, 0);
+    id_map_range (root, UART0_BASE, UART0_BASE + 0x100, ENTRY_READ_WRITE);
+    id_map_range (root, CLINT_BASE, CLINT_BASE + 0xffff, ENTRY_READ_WRITE);
+    // PLIC
+    id_map_range (root, 0x0c000000, 0x0c002000, ENTRY_READ_WRITE);
+    id_map_range (root, 0x0c200000, 0x0c208000, ENTRY_READ_WRITE);
 
     uintptr_t satp_value = build_satp (SV39, 0, (uintptr_t) root);
     mscratch_write ((uintptr_t) &KERNEL_TRAP_FRAME[0]);
