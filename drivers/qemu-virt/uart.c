@@ -1,6 +1,5 @@
 #include "uart.h"
 #include "mmio.h"
-#include <stdint.h>
 
 void uart_init ()
 {

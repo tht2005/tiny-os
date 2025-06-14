@@ -2,6 +2,7 @@
 #define __UART_H
 
 #include "mmio.h"
+#include <stdint.h>
 
 #define UART0_BASE 0x10000000
 
