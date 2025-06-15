@@ -9,6 +9,8 @@ ABI=lp64d
 
 CFLAGS  = -Wall -Wextra -ffreestanding -march=$(ARCH) -mabi=$(ABI) -I./include -I./libc/printf
 CFLAGS += -mcmodel=medany
+CFLAGS += -include generated/autoconf.h
+
 ASFLAGS = -march=$(ARCH) -mabi=$(ABI)
 
 C_SRCS := $(shell find . -name '*.c')
@@ -33,7 +35,6 @@ target/%.o: %.S
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) -o $@ $<
 
-# Ensure target dir exists first
 $(OBJS): | target
 target:
 	mkdir -p target
@@ -42,9 +43,9 @@ run: default
 	@echo "Ctrl-A C for QEMU console, then quit to exit"
 	qemu-system-riscv64 -machine virt -cpu rv64,pmp=false -smp 1 -nographic -bios none -kernel $(TARGET)
 
-debug: CFLAGS += -g -O0
+debug: CFLAGS += -g3 -O0
 debug: ASFLAGS += -g
-debug: default
+debug: $(TARGET)
 	qemu-system-riscv64 -machine virt -cpu rv64,pmp=false -smp 1 -s -S -nographic -bios none -kernel $(TARGET)
 
 clean:
