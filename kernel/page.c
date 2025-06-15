@@ -1,6 +1,6 @@
 #include "page.h"
 #include "printf.h"
-#include "linker_symbol.h"
+#include "symbol/linker_symbol.h"
 #include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
