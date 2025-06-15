@@ -8,6 +8,9 @@
 #include "lib.h"
 #include "plic.h"
 #include "printf.h"
+#include "sched.h"
+#include "symbol/asm_symbol.h"
+#include "syscall.h"
 
 uintptr_t m_trap (uintptr_t epc,
             uintptr_t tval,
@@ -20,6 +23,7 @@ uintptr_t m_trap (uintptr_t epc,
     const uintptr_t cause_num = cause & 0xfff;
     uintptr_t return_pc = epc;
     uint32_t plic_int, plic_c;
+    ScheduleContext sContent;
 
     if (is_async)
     {
@@ -29,8 +33,10 @@ uintptr_t m_trap (uintptr_t epc,
                 printf ("Machine software interrupt CPU#%"PRIuPTR"\n", hart);
                 break;
             case 7:
-                // timer int -> extend 1 sec
-                CLINT_SET_TIMEOUT (hart, CLINT_CLOCK_FREQ);
+                sContent = schedule ();
+                CLINT_SET_TIMEOUT (hart, 1 * CLINT_CLOCK_FREQ);
+                switch_to_user (sContent.frame_addr, sContent.mepc, sContent.satp);
+                panic ("switch_to_user returned!?");
                 break;
             case 11:
                 plic_int = plic_next ();
@@ -79,7 +85,7 @@ uintptr_t m_trap (uintptr_t epc,
                 break;
             case 8:
                 printf ("E-call from User mode! CPU#%"PRIuPTR" -> 0x%"PRIxPTR"\n", hart, epc);
-                return_pc += 4;
+                return_pc = do_syscall (return_pc, frame);
                 break;
             case 9:
                 printf ("E-call from Supervisor mode! CPU#%"PRIuPTR" -> 0x%"PRIxPTR"\n", hart, epc);

@@ -20,15 +20,17 @@
 
 .section .text
 .global m_trap_vector
+.align 4
 m_trap_vector:
 	# store the old t6 before using it atomically
 	csrrw	t6, mscratch, t6
 
-	.set	i, 1
-	.rept	30
+	.set	i, 0
+	.rept	31
 		save_gp %i
 		.set i, i + 1
 	.endr
+
 	# save the old t6
 	mv		t5, t6
 	csrr	t6, mscratch
@@ -49,24 +51,18 @@ m_trap_vector:
 	csrr	a2, mcause
 	csrr	a3, mhartid
 	csrr	a4, mstatus
-	mv		a5, t5
-
-	# typedef struct TrapFrame {
-	# 	uintptr_t regs[32];
-	# 	uintptr_t fregs[32];
-	# 	uintptr_t satp;
-	# 	uintptr_t trap_stack;
-	# 	uintptr_t hartid;
-	# } TrapFrame;
-	# load sp = TrapFrame->trap_stack
-	ld		sp, 520(a5)
+	csrr	a5, mscratch
+	# la		t0,	_stack_end
+	# ld		sp, 0(t0)
+	la		sp, _stack_end
 	call	m_trap
 
 	# after mret set PC to the returned value
 	csrw	mepc, a0
 
-	# t6 load last so do not need to swap things ...
+	# old mscratch
 	csrr	t6, mscratch
+
 	.set	i, 1
 	.rept	31
 		load_gp %i
@@ -75,7 +71,34 @@ m_trap_vector:
 
 	mret
 
+# void switch_to_user (uintptr_t frame_addr, uintptr_t mepc, uintptr_t satp);
+.global switch_to_user
+switch_to_user:
+	csrw	mscratch, a0
+
+	li		t0, (1 << 7) | (1 << 5)
+	csrw	mstatus, t0
+	csrw	mepc, a1
+	csrw	satp, a2
+	li		t1, 0xaaa
+	csrw	mie, t1
+	la		t2, m_trap_vector
+	csrw	mtvec, t2
+
+	sfence.vma
+
+	# load register from context frame
+	mv		t6, a0
+	.set	i, 1
+	.rept	31
+		load_gp %i, t6
+		.set	i, i + 1
+	.endr
+
+	mret
+
 .global make_syscall
 make_syscall:
 	ecall
 	ret
+
