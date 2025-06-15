@@ -124,4 +124,16 @@ static inline void satp_fence_asid (uintptr_t asid)
     __asm__ volatile("sfence.vma zero, %0" :: "r"(asid));
 }
 
+static inline void mepc_write (uintptr_t val)
+{
+    __asm__ volatile("csrw mepc, %0" ::"r"(val));
+}
+
+static inline uintptr_t mepc_read (void)
+{
+    uintptr_t ret;
+    __asm__ volatile("csrr %0, mepc" : "=r"(ret));
+    return ret;
+}
+
 #endif
